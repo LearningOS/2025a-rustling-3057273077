@@ -13,5 +13,6 @@ fn main() {
 }
 
 fn current_favorite_color() -> String {
-    "blue"
+    let s = "blue".to_string();
+    return s;
 }
