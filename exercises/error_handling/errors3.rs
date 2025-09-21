@@ -7,21 +7,43 @@
 // Execute `rustlings hint errors3` or use the `hint` watch subcommand for a
 // hint.
 
-// I AM NOT DONE
 
 use std::num::ParseIntError;
 
+// 方法1: 将main函数的返回类型改为Result，允许使用?运算符
+// fn main() -> Result<(), ParseIntError> {
+//     let mut tokens = 100;
+//     let pretend_user_input = "8";
+//
+//     let cost = total_cost(pretend_user_input)?;
+//
+//     if cost > tokens {
+//         println!("You can't afford that many!");
+//     } else {
+//         tokens -= cost;
+//         println!("You now have {} tokens.", tokens);
+//     }
+//
+//     Ok(())
+// }
+
+// 方法2: 使用match表达式处理错误（更常用的方法）
 fn main() {
     let mut tokens = 100;
     let pretend_user_input = "8";
 
-    let cost = total_cost(pretend_user_input)?;
-
-    if cost > tokens {
-        println!("You can't afford that many!");
-    } else {
-        tokens -= cost;
-        println!("You now have {} tokens.", tokens);
+    match total_cost(pretend_user_input) {
+        Ok(cost) => {
+            if cost > tokens {
+                println!("You can't afford that many!");
+            } else {
+                tokens -= cost;
+                println!("You now have {} tokens.", tokens);
+            }
+        }
+        Err(e) => {
+            println!("Error: {}", e);
+        }
     }
 }
 
