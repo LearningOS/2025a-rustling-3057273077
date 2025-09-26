@@ -3,7 +3,7 @@
 // Execute `rustlings hint threads3` or use the `hint` watch subcommand for a
 // hint.
 
-// I AM NOT DONE
+
 
 use std::sync::mpsc;
 use std::sync::Arc;
@@ -27,6 +27,10 @@ impl Queue {
 }
 
 fn send_tx(q: Queue, tx: mpsc::Sender<u32>) -> () {
+    // 克隆发送者，每个线程使用自己的发送端
+    let tx1 = mpsc::Sender::clone(&tx);
+    let tx2 = mpsc::Sender::clone(&tx);
+    
     let qc = Arc::new(q);
     let qc1 = Arc::clone(&qc);
     let qc2 = Arc::clone(&qc);
@@ -34,18 +38,24 @@ fn send_tx(q: Queue, tx: mpsc::Sender<u32>) -> () {
     thread::spawn(move || {
         for val in &qc1.first_half {
             println!("sending {:?}", val);
-            tx.send(*val).unwrap();
+            tx1.send(*val).unwrap();
             thread::sleep(Duration::from_secs(1));
         }
+        // 这个线程的发送者在这里被自动 drop
     });
 
     thread::spawn(move || {
         for val in &qc2.second_half {
             println!("sending {:?}", val);
-            tx.send(*val).unwrap();
+            tx2.send(*val).unwrap();
             thread::sleep(Duration::from_secs(1));
         }
+        // 这个线程的发送者在这里被自动 drop
     });
+    
+    // 这里 drop 原始发送者，这样当所有克隆的发送者都被 drop 后，
+    // 接收端就会知道不会再有新消息，从而结束 for 循环
+    drop(tx);
 }
 
 fn main() {
